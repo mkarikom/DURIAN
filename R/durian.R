@@ -218,7 +218,7 @@ run_durian <- function(path=NULL,
       meanrhat=limrhat+1
       niterset = MCNITER
       while(meanrhat > limrhat){
-        jl_output = julia_call("DistributedTopicModels.dsLDA_E_step",
+        jl_output = julia_call("DistributedStwdLDA.dsLDA_E_step",
                           t(as.matrix(scdata[deconvgeneids,deconvcellids])), # the name of the single cell data file
                           deconvgeneids,
                           deconvcellids,
