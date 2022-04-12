@@ -1,0 +1,10 @@
+pandoc: '2.5'
+pkgdown: 2.0.2
+pkgdown_sha: ~
+articles:
+  basic_usage: basic_usage.html
+last_built: 2022-02-09T21:02Z
+urls:
+  reference: https://mkarikom.github.io/DURIAN/reference
+  article: https://mkarikom.github.io/DURIAN/articles
+
