@@ -602,7 +602,11 @@ run_durian <- function(path=NULL,
   return(list(P=thetahat,C=scdata,log=logdf))
 }
 
-######## SCRABBLE OG ##############
+#' Run original SCRABBLE
+#' @param path The path to the input data if not provided as an object.
+#' @param scrabble_parameters The ADMM parameters
+#' @return The imputed data.
+#' @export
 run_scrabble <- function(
                       path, 
                       scrabble_parameters = c(1, 1e-06, 1e-04),
@@ -733,7 +737,11 @@ run_scrabble <- function(
   return(list(C=scdata))
 }
 
-######## SCRABBLE Multitask ##############
+#' Run multitask SCRABBLE (positive control)
+#' @param path The path to the input data if not provided as an object.
+#' @param scrabble_parameters The ADMM parameters
+#' @return The imputed data.
+#' @export
 run_scrabble_m <- function(
                       path, 
                       scrabble_parameters = c(1, 1e-06, 1e-04),
