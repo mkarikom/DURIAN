@@ -602,6 +602,8 @@ run_durian <- function(path=NULL,
   return(list(P=thetahat,C=scdata,log=logdf))
 }
 
+#' Run non-deconvoluted imputation
+#' @export
 scrabble_admm <- function(
   scdata=NULL,
   bulkdata=NULL,
@@ -641,6 +643,8 @@ scrabble_admm <- function(
 
 }
 
+#' Run deconvoluted imputation
+#' @export
 mtscrabble_admm <- function(
   scdata=NULL,
   bulkdata=NULL,
@@ -688,9 +692,11 @@ mtscrabble_admm <- function(
   return(result_list)
 }
 
-# 1. find the correlation matrices for true and obs data:  
-#     eg the correlation matrix for obs is a symmetric matrix giving correlation between each obs column and all the other obs columns
-# 2. return the correlation between the vectorized obs and vectorized true
+#' Get metrics
+#' 1. find the correlation matrices for true and obs data:  
+#'     eg the correlation matrix for obs is a symmetric matrix giving correlation between each obs column and all the other obs columns
+#' 2. return the correlation between the vectorized obs and vectorized true
+#' @export
 getmetrics <- function(obs.orig,true.orig,useIrlba=TRUE){
   # remove cols or rows that are all zero
   obs.nzcol = which(colSums(obs.orig)>0)
@@ -754,7 +760,8 @@ getmetrics <- function(obs.orig,true.orig,useIrlba=TRUE){
   return(list(rmse=rmse,errnorm=errnorm,row=cor_row,col=cor_col,mean_row=mean_cor_row,mean_col=mean_cor_col))
 }
 
-# return the ratio of zero entries in `obs` that are non-zero in `orig` 
+#' return the ratio of zero entries in `obs` that are non-zero in `orig` 
+#' @export
 getdroprate <- function(obs,orig){
   nzorig = which(as.vector(as.logical(as.matrix(orig))))
   drvec = as.vector(as.logical(as.matrix(obs)))[nzorig] - as.vector(as.logical(as.matrix(orig)))[nzorig]
@@ -762,12 +769,15 @@ getdroprate <- function(obs,orig){
   length(drind) / length(drvec)
 }
 
-# return the percentage of nonzero values in the data 
+#' return the percentage of nonzero values in the data 
+#' @export
 getsparsity <- function(x){
   round(Matrix::nnzero(x == 0, na.counted = NA)/
                              (dim(x)[1]*dim(x)[2])*100)
 }
 
+#' calculate the similarity 
+#' @export
 calculate_similarity <- function(data1,data2){
 
   d = cor(c(data1[lower.tri(data1)]),c(data2[lower.tri(data2)]))
@@ -776,7 +786,8 @@ calculate_similarity <- function(data1,data2){
 
 }
 
-# remove outlier cells by library size
+#' remove outlier cells by library size
+#' @export
 scremoutlier <- function(data,nsd=3){
   sums = colSums(data)
   msum = mean(sums)
@@ -785,7 +796,8 @@ scremoutlier <- function(data,nsd=3){
   data[,inds]
 }
 
-# get the cell and gene ids corresponding to gene expressed in at least `generate * ncells` cells and for those genes, the cells that have nonzero total expression
+#' get the cell and gene ids corresponding to gene expressed in at least `generate * ncells` cells and for those genes, the cells that have nonzero total expression
+#' @export
 subsetsc <- function(x=NULL,generate=0.05,geneids=NULL,return_obj=FALSE,nsd=NULL){
    # remove outlier cells
    if(!is.null(nsd)){
@@ -806,6 +818,8 @@ subsetsc <- function(x=NULL,generate=0.05,geneids=NULL,return_obj=FALSE,nsd=NULL
    }
 }
 
+#' cluster quality metrics
+#' @export
 run_fpc <- function(scdata,
                     pDataC,
                     n_samp_cell=800){
