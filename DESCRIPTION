@@ -14,7 +14,6 @@ Depends: R (>= 4.0.4),
         foreach (>= 1.5.1),
         dplyr (>= 1.0.7)
 Imports: mtSCRABBLE (>= 0.0.1),
-        fpc (>= 2.2),
         umap (>= 0.2.7.0),
         Biobase (>= 2.52.0)
 Remotes: 

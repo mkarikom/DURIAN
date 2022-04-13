@@ -109,8 +109,6 @@ run_durian <- function(path=NULL,
 
     impute_metrics = getmetrics(result_sub,true_sub)
     dropout_rate = getdroprate(result_sub,true_sub)
-    sparsity_true = getsparsity(true_sub)
-    sparsity_obs = getsparsity(result_sub)
 
     impute_rmse = impute_metrics[["rmse"]]
     cor_gene = impute_metrics[["row"]]
@@ -120,9 +118,6 @@ run_durian <- function(path=NULL,
     errnorm = impute_metrics[["errnorm"]]
   }
 
-  cstats_list = run_fpc(scdata=scdata,pDataC=metadata,n_samp_cell=1e8)
-  cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(scdata))
-
   logdf <- data.frame(
     iter = as.integer(c(0)),
     ldaMeanRhat = as.numeric(c(NA)),
@@ -130,7 +125,7 @@ run_durian <- function(path=NULL,
     converged=as.integer(c(0)),
     status=c("running"),
     wallclock=as.numeric(c(0)))
-  logdf = cbind(logdf,t(cstats))
+  logdf = cbind(logdf)
 
   if(!is.null(imputebenchmark)){
     # define the diagnostic output table
@@ -141,8 +136,6 @@ run_durian <- function(path=NULL,
     logdf$durian_mean_genecor = as.numeric(c(mean_cor_gene))
     logdf$durian_mean_cellcor = as.numeric(c(mean_cor_cell))
     logdf$dropout_rate = as.numeric(c(dropout_rate))
-    logdf$sparsity_true = as.numeric(c(sparsity_true))
-    logdf$sparsity_obs = as.numeric(c(sparsity_obs))
   }
 
   if(!is.null(deconvbenchmark)){
@@ -395,8 +388,6 @@ run_durian <- function(path=NULL,
         mean_cor_gene = impute_metrics[["mean_row"]]
         mean_cor_cell = impute_metrics[["mean_col"]]
         errnorm = impute_metrics[["errnorm"]]
-        sparsity_true = getsparsity(true_sub)
-        sparsity_obs = getsparsity(result_sub)
     }
 
     if(!is.null(deconvbenchmark)){
@@ -425,16 +416,11 @@ run_durian <- function(path=NULL,
     End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
     totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
 
-
-    # calculate cluster metrics
-    cstats_list = run_fpc(scdata=scdata,pDataC=metadata,n_samp_cell=1e8)
-    cstats = c(unlist(cstats_list[c("dunn","dunn2")]),sparsity = getsparsity(scdata))
-
     if(!emDiag && itercount == 1){
       print("cond 1")
       # first iteration E-step succeeds, continue
-      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime,cstats)
-      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock",names(cstats))
+      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime)
+      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
       if(!is.null(imputebenchmark)){
         iteroutput$durian_rmse = impute_rmse
         iteroutput$durian_genecor = cor_gene
@@ -443,8 +429,6 @@ run_durian <- function(path=NULL,
         iteroutput$durian_mean_cellcor = mean_cor_cell
         iteroutput$dropout_rate = dropout_rate
         iteroutput$errnorm = errnorm
-        iteroutput$sparsity_true = sparsity_true
-        iteroutput$sparsity_obs = sparsity_obs
       }
       if(!is.null(deconvbenchmark)){
         iteroutput$deconv_rmse = deconv_rmse
@@ -475,8 +459,8 @@ run_durian <- function(path=NULL,
       emstatus=0
       # logdf$converged[itercount-1] = "change(loss) < eps*loss(t-1)"
       # do not write sc data (EM succeeds, use output of nth-1 iteration)
-      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"change(scrabble loss) <= eps",totaltime,cstats)
-      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock",names(cstats))
+      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"change(scrabble loss) <= eps",totaltime)
+      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
 
       if(!is.null(imputebenchmark)){
         iteroutput$durian_rmse = impute_rmse
@@ -486,8 +470,6 @@ run_durian <- function(path=NULL,
         iteroutput$durian_mean_cellcor = mean_cor_cell
         iteroutput$dropout_rate = dropout_rate
         iteroutput$errnorm = errnorm
-        iteroutput$sparsity_true = sparsity_true
-        iteroutput$sparsity_obs = sparsity_obs
       }
       if(!is.null(deconvbenchmark)){
         iteroutput$deconv_rmse = deconv_rmse
@@ -511,8 +493,8 @@ run_durian <- function(path=NULL,
       print("cond 4")
       # E-step succeeds, M-step succeeds, but iteration limit reached, stop
       emstatus=0
-      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"reached iteration limit",totaltime,cstats)
-      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock",names(cstats))
+      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"reached iteration limit",totaltime)
+      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
       if(!is.null(imputebenchmark)){
         iteroutput$durian_rmse = impute_rmse
         iteroutput$durian_genecor = cor_gene
@@ -521,8 +503,6 @@ run_durian <- function(path=NULL,
         iteroutput$durian_mean_cellcor = mean_cor_cell
         iteroutput$dropout_rate = dropout_rate
         iteroutput$errnorm = errnorm
-        iteroutput$sparsity_true = sparsity_true
-        iteroutput$sparsity_obs = sparsity_obs
       }
       if(!is.null(deconvbenchmark)){
         iteroutput$deconv_rmse = deconv_rmse
@@ -545,8 +525,8 @@ run_durian <- function(path=NULL,
     }else{
       print("cond 5")
       # E-step succeeds, M-step succeeds, continue
-      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime,cstats)
-      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock",names(cstats))
+      iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime)
+      names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
       if(!is.null(imputebenchmark)){
         iteroutput$durian_rmse = impute_rmse
         iteroutput$durian_genecor = cor_gene
@@ -555,8 +535,6 @@ run_durian <- function(path=NULL,
         iteroutput$durian_mean_cellcor = mean_cor_cell
         iteroutput$dropout_rate = dropout_rate
         iteroutput$errnorm = errnorm
-        iteroutput$sparsity_true = sparsity_true
-        iteroutput$sparsity_obs = sparsity_obs
       }
       if(!is.null(deconvbenchmark)){
         iteroutput$deconv_rmse = deconv_rmse
@@ -594,8 +572,6 @@ run_durian <- function(path=NULL,
       MeanGene=c(mean_cor_gene),
       MeanCell=c(mean_cor_cell),
       Dropout=c(dropout_rate),
-      sparsity_true=c(sparsity_true),
-      sparsity_obs=c(sparsity_obs),
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
    
@@ -710,8 +686,6 @@ run_scrabble <- function(
     impute_metrics = getmetrics(result_sub,true_sub)
 
     dropout_rate = getdroprate(result_sub,true_sub)
-    sparsity_true = getsparsity(true_sub)
-    sparsity_obs = getsparsity(result_sub)
 
     impute_rmse = impute_metrics[["rmse"]]
     cor_gene = impute_metrics[["row"]]
@@ -728,8 +702,6 @@ run_scrabble <- function(
       MeanGene=c(mean_cor_gene),
       MeanCell=c(mean_cor_cell),
       Dropout=c(dropout_rate),
-      sparsity_true=c(sparsity_true),
-      sparsity_obs=c(sparsity_obs),
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
 
@@ -847,8 +819,6 @@ run_scrabble_m <- function(
     impute_metrics = getmetrics(result_sub,true_sub)
 
     dropout_rate = getdroprate(result_sub,true_sub)
-    sparsity_true = getsparsity(true_sub)
-    sparsity_obs = getsparsity(result_sub)
 
     impute_rmse = impute_metrics[["rmse"]]
     cor_gene = impute_metrics[["row"]]
@@ -865,8 +835,6 @@ run_scrabble_m <- function(
       MeanGene=c(mean_cor_gene),
       MeanCell=c(mean_cor_cell),
       Dropout=c(dropout_rate),
-      sparsity_true=c(sparsity_true),
-      sparsity_obs=c(sparsity_obs),
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
   
@@ -960,9 +928,8 @@ mtscrabble_admm <- function(
   return(result_list)
 }
 
-# 1. find the correlation matrices for true and obs data:  
-#     eg the correlation matrix for obs is a symmetric matrix giving correlation between each obs column and all the other obs columns
-# 2. return the correlation between the vectorized obs and vectorized true
+#' Get benchmark metrics
+#' @export
 getmetrics <- function(obs.orig,true.orig,useIrlba=TRUE){
   # remove cols or rows that are all zero
   obs.nzcol = which(colSums(obs.orig)>0)
@@ -1026,7 +993,8 @@ getmetrics <- function(obs.orig,true.orig,useIrlba=TRUE){
   return(list(rmse=rmse,errnorm=errnorm,row=cor_row,col=cor_col,mean_row=mean_cor_row,mean_col=mean_cor_col))
 }
 
-# return the ratio of zero entries in `obs` that are non-zero in `orig` 
+#' Get the differential sparsity of the observed vs original
+#' @export
 getdroprate <- function(obs,orig){
   nzorig = which(as.vector(as.logical(as.matrix(orig))))
   drvec = as.vector(as.logical(as.matrix(obs)))[nzorig] - as.vector(as.logical(as.matrix(orig)))[nzorig]
@@ -1034,27 +1002,10 @@ getdroprate <- function(obs,orig){
   length(drind) / length(drvec)
 }
 
-# return the percentage of nonzero values in the data 
-getsparsity <- function(x){
-  round(Matrix::nnzero(x == 0, na.counted = NA)/
-                             (dim(x)[1]*dim(x)[2])*100)
-}
 
 calculate_similarity <- function(data1,data2){
-
   d = cor(c(data1[lower.tri(data1)]),c(data2[lower.tri(data2)]))
-
   return(d)
-
-}
-
-# remove outlier cells by library size
-scremoutlier <- function(data,nsd=3){
-  sums = colSums(data)
-  msum = mean(sums)
-  sdsum = sd(sums)
-  inds = which(as.logical((sums >= msum-nsd*sdsum)*(sums <= msum+nsd*sdsum)))
-  data[,inds]
 }
 
 # get the cell and gene ids corresponding to gene expressed in at least `generate * ncells` cells and for those genes, the cells that have nonzero total expression
@@ -1078,10 +1029,11 @@ subsetsc <- function(x=NULL,generate=0.05,geneids=NULL,return_obj=FALSE,nsd=NULL
    }
 }
 
-run_fpc <- function(scdata,
-                    pDataC,
-                    n_samp_cell=800){
-    n_samp_cell = min(n_samp_cell,ncol(scdata))
-    umap_res_cell = umap::umap(as.data.frame(t(scdata)) %>% sample_n(n_samp_cell))
-    cstats_cell = fpc::cluster.stats(dist(umap_res_cell$layout),as.integer(as.factor(pDataC$cellType)))
+# remove outlier cells by library size
+scremoutlier <- function(data,nsd=3){
+  sums = colSums(data)
+  msum = mean(sums)
+  sdsum = sd(sums)
+  inds = which(as.logical((sums >= msum-nsd*sdsum)*(sums <= msum+nsd*sdsum)))
+  data[,inds]
 }
