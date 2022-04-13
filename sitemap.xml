@@ -19,10 +19,16 @@
     <loc>https://mkarikom.github.io/DURIAN/index.html</loc>
   </url>
   <url>
+    <loc>https://mkarikom.github.io/DURIAN/reference/B.html</loc>
+  </url>
+  <url>
     <loc>https://mkarikom.github.io/DURIAN/reference/C.html</loc>
   </url>
   <url>
-    <loc>https://mkarikom.github.io/DURIAN/reference/T.html</loc>
+    <loc>https://mkarikom.github.io/DURIAN/reference/getdroprate.html</loc>
+  </url>
+  <url>
+    <loc>https://mkarikom.github.io/DURIAN/reference/getmetrics.html</loc>
   </url>
   <url>
     <loc>https://mkarikom.github.io/DURIAN/reference/index.html</loc>
@@ -32,5 +38,11 @@
   </url>
   <url>
     <loc>https://mkarikom.github.io/DURIAN/reference/run_durian.html</loc>
+  </url>
+  <url>
+    <loc>https://mkarikom.github.io/DURIAN/reference/run_scrabble.html</loc>
+  </url>
+  <url>
+    <loc>https://mkarikom.github.io/DURIAN/reference/run_scrabble_m.html</loc>
   </url>
 </urlset>
