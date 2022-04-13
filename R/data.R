@@ -29,4 +29,4 @@
 #'
 #' @format A data frame with 6000 genes and 20 donors:
 #' @source \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE65832}
-"T"
+"B"

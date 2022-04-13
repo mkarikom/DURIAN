@@ -203,8 +203,8 @@ run_durian <- function(path=NULL,
           metadata$sampleID = sample(paste0(unique(metadata$sampleID),c(".a",".b")),nrow(metadata),replace=TRUE)
         }
         C.eset <- Biobase::ExpressionSet(assayData = as.matrix(scdata[deconvgeneids,deconvcellids]),phenoData = Biobase::AnnotatedDataFrame(metadata[deconvcellids,]))
-        T.eset <- Biobase::ExpressionSet(assayData = as.matrix(bulkdata[deconvgeneids,]))
-        thetahat = music_prop(bulk.eset = T.eset, sc.eset = C.eset, clusters = 'cellType',markers = NULL, normalize = FALSE, samples = 'sampleID', verbose = F)$Est.prop.weighted
+        B.eset <- Biobase::ExpressionSet(assayData = as.matrix(bulkdata[deconvgeneids,]))
+        thetahat = music_prop(bulk.eset = B.eset, sc.eset = C.eset, clusters = 'cellType',markers = NULL, normalize = FALSE, samples = 'sampleID', verbose = F)$Est.prop.weighted
     }
 
     if(deconv_method=="dsLDA"){
@@ -590,7 +590,7 @@ run_scrabble <- function(
                       nIter_inner = 20,
                       nSDCIters = 10000,
                       C_fn="ldaC.csv.gz",
-                      T_fn="T.csv.gz",
+                      T_fn="B.csv.gz",
                       scdata=NULL,
                       bulkdata=NULL,
                       scrcellids=NULL,
@@ -721,7 +721,7 @@ run_scrabble_m <- function(
                       nIter_inner = 20,
                       nSDCIters = 10000,
                       C_fn="ldaC.csv",
-                      T_fn="T.csv",
+                      T_fn="B.csv",
                       pDataC_fn="pDataC.csv",
                       scdata=NULL,
                       bulkdata=NULL,

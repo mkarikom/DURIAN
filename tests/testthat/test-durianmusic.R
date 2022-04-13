@@ -1,6 +1,6 @@
 test_that("imputation works with nnls (music) deconvolution", {
   C = read.csv("data/C.csv",row.names=1)
-  T = read.csv("data/T.csv",row.names=1)
+  B = read.csv("data/B.csv",row.names=1)
   pDataC = read.csv("data/pDataC.csv",row.names=1)
   trueC = read.csv("data/trueC.csv",row.names=1)
   trueP = read.csv("data/trueP.csv",row.names=1)
@@ -10,7 +10,7 @@ test_that("imputation works with nnls (music) deconvolution", {
       nEM = 3,
       scdata = C,
       metadata = pDataC,
-      bulkdata = T,
+      bulkdata = B,
       deconv_method = "MuSiC",
       imputebenchmark = trueC,
       deconvbenchmark = trueP,

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ##### Load the package and data
 ```{r setup,warning=FALSE,message=FALSE}
 library(DURIAN)
-data(c("C","T","pDataC"))
+data(c("C","B","pDataC"))
 ```
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
@@ -28,7 +28,7 @@ impresult_list=run_durian(
       nEM = 5,
       scdata = C,
       metadata = pDataC,
-      bulkdata = T,
+      bulkdata = B,
       deconv_method = "MuSiC",
       nIter_outer = 10,
       nIter_inner = 10,
