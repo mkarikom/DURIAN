@@ -1008,7 +1008,8 @@ calculate_similarity <- function(data1,data2){
   return(d)
 }
 
-# get the cell and gene ids corresponding to gene expressed in at least `generate * ncells` cells and for those genes, the cells that have nonzero total expression
+#' Get the cell and gene ids corresponding to gene expressed in at least `generate * ncells` cells and for those genes, the cells that have nonzero total expression
+#' @export
 subsetsc <- function(x=NULL,generate=0.05,geneids=NULL,return_obj=FALSE,nsd=NULL){
    # remove outlier cells
    if(!is.null(nsd)){
@@ -1029,7 +1030,8 @@ subsetsc <- function(x=NULL,generate=0.05,geneids=NULL,return_obj=FALSE,nsd=NULL
    }
 }
 
-# remove outlier cells by library size
+#' Remove outlier cells by library size
+#' @export
 scremoutlier <- function(data,nsd=3){
   sums = colSums(data)
   msum = mean(sums)
