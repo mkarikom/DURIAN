@@ -16,9 +16,21 @@ knitr::opts_chunk$set(
 ```
 
 ##### Load the package and data
-```{r setup,warning=FALSE,message=FALSE}
+```{r setup,warning=FALSE,message=FALSE,cache=TRUE}
 library(DURIAN)
 data(c("C","B","pDataC"))
+```
+
+##### Preprocess the data
+```{r, cache=TRUE}
+library(Seurat)
+
+seur = CreateSeuratObject(counts=C)
+seur = NormalizeData(seur)
+genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))
+comgenes = intersect(genes,rownames(B))
+C_prepro = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)
+pDataC_prepro = pDataC[colnames(C_prepro),]
 ```
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
@@ -26,13 +38,13 @@ data(c("C","B","pDataC"))
 impresult_list=run_durian(
       scrabble_parameters = c(1,1e-6,1e-4),
       nEM = 5,
-      scdata = C,
-      metadata = pDataC,
+      scdata = C_prepro,
+      metadata = pDataC_prepro,
       bulkdata = B,
       deconv_method = "MuSiC",
-      nIter_outer = 10,
-      nIter_inner = 10,
-      nSDCIters = 500000,
+      nIter_outer = 3,
+      nIter_inner = 3,
+      nSDCIters = 50000,
       DECONVGENETHRESH=-0.01,
       SCRGENETHRESH=-0.01,
       outerStats = FALSE,
@@ -49,10 +61,10 @@ library(umap)
 library(ggplot2)
 library(reshape2)
 umap_imputed = umap(t(impresult))
-umap_orig = umap(t(as.matrix(C)))
-imputed_df = cbind(umap_imputed$layout,pDataC)
+umap_orig = umap(t(as.matrix(C_prepro)))
+imputed_df = cbind(umap_imputed$layout,pDataC_prepro)
 imputed_df$status = "Imputed"
-orig_df = cbind(umap_orig$layout,pDataC)
+orig_df = cbind(umap_orig$layout,pDataC_prepro)
 orig_df$status = "Unimputed"
 df = rbind(imputed_df,orig_df)
 colnames(df) = c("UMAP1","UMAP2","cellID","cellType","sampleID","status")
