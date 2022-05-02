@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 
 DURIAN (Deconvolution and mUltitask-Regression-based ImputAtioN) is a hybrid, iterative method for imputation of drop-out in single-cell expression data.  Automatic recovery of missing single-cell reads is supervised by deconvoluted bulk expression data.
 
+For examples of pipelines involving DURIAN, users should consult [the scripts](https://github.com/mkarikom/DURIAN_paper) used to generate the benchmarking and figures for our paper.
+
 ## Installation
 Install the pipeline and example data from GitHub.
 ``` r

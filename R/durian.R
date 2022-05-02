@@ -931,7 +931,7 @@ mtscrabble_admm <- function(
 #' Get benchmark metrics
 #' @export
 getmetrics <- function(obs.orig,true.orig,useIrlba=TRUE){
-  # remove cols or rows that are all zero
+  print("remove cols or rows that are all zero")
   obs.nzcol = which(colSums(obs.orig)>0)
   obs.nzrow = which(rowSums(obs.orig)>0)
   true.nzcol = which(colSums(true.orig)>0)
@@ -1001,7 +1001,6 @@ getdroprate <- function(obs,orig){
   drind = which(drvec == -1)
   length(drind) / length(drvec)
 }
-
 
 calculate_similarity <- function(data1,data2){
   d = cor(c(data1[lower.tri(data1)]),c(data2[lower.tri(data2)]))
