@@ -8,14 +8,52 @@ hybrid, iterative method for imputation of drop-out in single-cell
 expression data. Automatic recovery of missing single-cell reads is
 supervised by deconvoluted bulk expression data.
 
+For examples of pipelines involving DURIAN, users should consult [the
+scripts](https://github.com/mkarikom/DURIAN_paper) used to generate the
+benchmarking and figures for our paper.
+
 ## Installation
 
-Install the pipeline and example data from GitHub.
+### Dependencies
+
+``` julia
+ENV["R_HOME"]="/usr/local/lib/R"
+#> "/usr/local/lib/R"
+Pkg.add("RCall")
+Pkg.build("RCall")
+using RCall
+
+Pkg.add(url="https://github.com/mkarikom/DistributedStwdLDA.jl.git")
+```
 
 ``` r
-# Install the latest version from github
+# Install the latest version and dependencies from github
 library(devtools)
+#> Loading required package: usethis
+devtools::install_github("mkarikom/MuSiC@biobaseImport")
+#> Skipping install of 'MuSiC' from a github remote, the SHA1 (32965fa7) has not changed since last install.
+#>   Use `force = TRUE` to force installation
+devtools::install_github("mkarikom/mtSCRABBLE")
+#> Skipping install of 'mtSCRABBLE' from a github remote, the SHA1 (07a86c84) has not changed since last install.
+#>   Use `force = TRUE` to force installation
+install.packages("foreach")
+#> Installing package into '/usr/local/lib/R/site-library'
+#> (as 'lib' is unspecified)
+
+Sys.setenv(JULIA_HOME="/usr/local/julia-1.7.2/bin")
+install.packages("JuliaCall")
+#> Installing package into '/usr/local/lib/R/site-library'
+#> (as 'lib' is unspecified)
+library(JuliaCall)
+julia_setup(JULIA_HOME = Sys.getenv("JULIA_HOME"),verbose=TRUE,rebuild = TRUE,install=FALSE)
+```
+
+### Package
+
+``` r
 install_github("mkarikom/DURIAN")
+#> Skipping install of 'DURIAN' from a github remote, the SHA1 (eab75305) has not changed since last install.
+#>   Use `force = TRUE` to force installation
 ```
 
 ## Module Selection
@@ -23,12 +61,15 @@ install_github("mkarikom/DURIAN")
 <div>
 
 DURIAN supports the integration of custom deconvolution modules, even
-modules written in other languages, such as Julia. Current deconvolution
-alternatives include:
+modules written in other languages, such as Julia. Module selection is
+made using the `deconv_method` argument to `DURIAN::run_durian` and the
+default is `deconv_method = "MuSiC"`.
 
-  - fast, NNLS regression using [MuSiC
+Current deconvolution alternatives include:
+
+-   fast, NNLS regression using [MuSiC
     (R)](https://github.com/xuranw/MuSiC)
-  - distributed Monte Carlo inference using [dsLDA
+-   distributed Monte Carlo inference using [dsLDA
     (Julia)](https://github.com/mkarikom/DistributedStwdLDA.jl)
 
 </div>
@@ -46,8 +87,19 @@ Human single-cell data in `vignette("basic_usage")`.
 
 ``` r
 library(DURIAN)
-data(c("C","T","pDataC"))
+data(c("C","B","pDataC"))
 ```
+
+<!-- ##### Preprocess the data -->
+<!-- ```{r, cache=TRUE} -->
+<!-- library(Seurat) -->
+<!-- seur = CreateSeuratObject(counts=C) -->
+<!-- seur = NormalizeData(seur) -->
+<!-- genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)) -->
+<!-- comgenes = intersect(genes,rownames(B)) -->
+<!-- C = subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3) -->
+<!-- pDataC = pDataC[colnames(C),] -->
+<!-- ``` -->
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
 
@@ -57,7 +109,7 @@ impresult_list=run_durian(
       nEM = 5,
       scdata = C,
       metadata = pDataC,
-      bulkdata = T,
+      bulkdata = B,
       deconv_method = "MuSiC",
       nIter_outer = 10,
       nIter_inner = 10,
@@ -97,4 +149,4 @@ ggplot(df,aes(x=UMAP1, y=UMAP2,color=cellType)) +
       facet_grid(~status,scales="free") + theme_bw()
 ```
 
-![](man/figures/unnamed-chunk-4-1.svg)<!-- -->
+![](man/figures/unnamed-chunk-7-1.svg)<!-- -->

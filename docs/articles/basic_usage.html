@@ -63,6 +63,9 @@
   </div>
 </nav><div class="container template-article">
 
+
+
+
 <div class="row">
   <main id="main"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Basic Usage</h1>
@@ -79,10 +82,21 @@
 </h5>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mkarikom/DURIAN" class="external-link">DURIAN</a></span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>,<span class="st">"T"</span>,<span class="st">"pDataC"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"C"</span>,<span class="st">"B"</span>,<span class="st">"pDataC"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<!-- ##### Preprocess the data -->
+<!-- ```{r, cache=TRUE} -->
+<!-- library(Seurat) -->
+<!-- seur = CreateSeuratObject(counts=C) -->
+<!-- seur = NormalizeData(seur) -->
+<!-- genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)) -->
+<!-- comgenes = intersect(genes,rownames(B)) -->
+<!-- C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3) -->
+<!-- pDataC = pDataC[colnames(C),] -->
+<!-- ``` -->
 </div>
 <div class="section level5">
-<h5 id="run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-">Run imputation on the single-cell data, using the bulk data for supervision.<a class="anchor" aria-label="anchor" href="#run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-"></a>
+<h5 id="run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-">Run imputation on the single-cell data, using the bulk data for
+supervision.<a class="anchor" aria-label="anchor" href="#run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-"></a>
 </h5>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">impresult_list</span><span class="op">=</span><span class="fu"><a href="../reference/run_durian.html">run_durian</a></span><span class="op">(</span>
@@ -90,7 +104,7 @@
       nEM <span class="op">=</span> <span class="fl">5</span>,
       scdata <span class="op">=</span> <span class="va">C</span>,
       metadata <span class="op">=</span> <span class="va">pDataC</span>,
-      bulkdata <span class="op">=</span> <span class="cn">T</span>,
+      bulkdata <span class="op">=</span> <span class="va">B</span>,
       deconv_method <span class="op">=</span> <span class="st">"MuSiC"</span>,
       nIter_outer <span class="op">=</span> <span class="fl">10</span>,
       nIter_inner <span class="op">=</span> <span class="fl">10</span>,
@@ -105,7 +119,8 @@
   <span class="va">impresult</span> <span class="op">=</span> <span class="va">impresult_list</span><span class="op">[[</span><span class="st">"C"</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 </div>
 <div class="section level5">
-<h5 id="construct-a-low-dimensional-umap-embedding-from-imputed-and-original-data">Construct a low-dimensional UMAP embedding from imputed and original data<a class="anchor" aria-label="anchor" href="#construct-a-low-dimensional-umap-embedding-from-imputed-and-original-data"></a>
+<h5 id="construct-a-low-dimensional-umap-embedding-from-imputed-and-original-data">Construct a low-dimensional UMAP embedding from imputed and original
+data<a class="anchor" aria-label="anchor" href="#construct-a-low-dimensional-umap-embedding-from-imputed-and-original-data"></a>
 </h5>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tkonopka/umap" class="external-link">umap</a></span><span class="op">)</span>
@@ -142,7 +157,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
 </div>
 
     </footer>

@@ -20,7 +20,7 @@ For examples of pipelines involving DURIAN, users should consult [the scripts](h
 
 ## Installation
 ### Dependencies
-```{julia,cache=TRUE}
+```{julia}
 ENV["R_HOME"]="/usr/local/lib/R"
 Pkg.add("RCall")
 Pkg.build("RCall")
@@ -29,7 +29,7 @@ using RCall
 Pkg.add(url="https://github.com/mkarikom/DistributedStwdLDA.jl.git")
 ```
 
-```{r,cache=TRUE}
+```{r}
 # Install the latest version and dependencies from github
 library(devtools)
 devtools::install_github("mkarikom/MuSiC@biobaseImport")
@@ -43,7 +43,7 @@ julia_setup(JULIA_HOME = Sys.getenv("JULIA_HOME"),verbose=TRUE,rebuild = TRUE,in
 ```
 
 ### Package
-```{r,cache=TRUE}
+```{r}
 install_github("mkarikom/DURIAN")
 ```
 
@@ -63,35 +63,35 @@ Check out basic usage of DURIAN running and visualizing imputation of Human sing
 </div>
 
 ##### Load the package and data
-```{r setup,warning=FALSE,message=FALSE,cache=TRUE}
+```{r setup,warning=FALSE,message=FALSE}
 library(DURIAN)
 data(c("C","B","pDataC"))
 ```
 
-##### Preprocess the data
-```{r, cache=TRUE}
-library(Seurat)
+<!-- ##### Preprocess the data -->
+<!-- ```{r, cache=TRUE} -->
+<!-- library(Seurat) -->
 
-seur = CreateSeuratObject(counts=C)
-seur = NormalizeData(seur)
-genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))
-comgenes = intersect(genes,rownames(B))
-C_prepro = subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)
-pDataC_prepro = pDataC[colnames(C_prepro),]
-```
+<!-- seur = CreateSeuratObject(counts=C) -->
+<!-- seur = NormalizeData(seur) -->
+<!-- genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)) -->
+<!-- comgenes = intersect(genes,rownames(B)) -->
+<!-- C = subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3) -->
+<!-- pDataC = pDataC[colnames(C),] -->
+<!-- ``` -->
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
-```{r,warning=FALSE,message=FALSE,results='hide',cache = TRUE}
+```{r,warning=FALSE,message=FALSE,results='hide'}
 impresult_list=run_durian(
       scrabble_parameters = c(1,1e-6,1e-4),
       nEM = 5,
-      scdata = C_prepro,
-      metadata = pDataC_prepro,
+      scdata = C,
+      metadata = pDataC,
       bulkdata = B,
       deconv_method = "MuSiC",
-      nIter_outer = 3,
-      nIter_inner = 3,
-      nSDCIters = 50000,
+      nIter_outer = 10,
+      nIter_inner = 10,
+      nSDCIters = 500000,
       DECONVGENETHRESH=-0.01,
       SCRGENETHRESH=-0.01,
       outerStats = FALSE,
@@ -103,15 +103,15 @@ impresult_list=run_durian(
 ```
 
 ##### Construct a low-dimensional UMAP embedding from imputed and original data
-```{r,warning=FALSE,message=FALSE,results='hide',cache=TRUE}
+```{r,warning=FALSE,message=FALSE,results='hide'}
 library(umap)
 library(ggplot2)
 library(reshape2)
 umap_imputed = umap(t(impresult))
-umap_orig = umap(t(as.matrix(C_prepro)))
-imputed_df = cbind(umap_imputed$layout,pDataC_prepro)
+umap_orig = umap(t(as.matrix(C)))
+imputed_df = cbind(umap_imputed$layout,pDataC)
 imputed_df$status = "Imputed"
-orig_df = cbind(umap_orig$layout,pDataC_prepro)
+orig_df = cbind(umap_orig$layout,pDataC)
 orig_df$status = "Unimputed"
 df = rbind(imputed_df,orig_df)
 colnames(df) = c("UMAP1","UMAP2","cellID","cellType","sampleID","status")
@@ -119,7 +119,7 @@ df$status = factor(df$status,levels=c("Unimputed","Imputed"))
 ```
 
 ##### Plot the original and imputed data
-```{r,warning=FALSE,message=FALSE,results='hide', fig.width=7,fig.height=3,dev = "svg",fig.ext="svg",cache=TRUE}
+```{r,warning=FALSE,message=FALSE,results='hide', fig.width=7,fig.height=3,dev = "svg",fig.ext="svg"}
 ggplot(df,aes(x=UMAP1, y=UMAP2,color=cellType)) + 
       geom_point(size=1)+
       facet_grid(~status,scales="free") + theme_bw()
