@@ -46,3 +46,4 @@ workspace.code-workspace
 tests/testthat/testoutput/
 inst/doc
 *.Rproj
+pkgdown/
