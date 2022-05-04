@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# DURIAN <img src="man/figures/durianlogo.svg" align="right" alt="" width="120" />
+# DURIAN <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 
 DURIAN (Deconvolution and mUltitask-Regression-based ImputAtioN) is a
 hybrid, iterative method for imputation of drop-out in single-cell
