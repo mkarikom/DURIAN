@@ -1,0 +1,140 @@
+
+---
+title: "Signaling Network Recovery from Imputed Seurat Output"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Seurat+Signaling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+##### Load the package and data
+```{r setup,warning=FALSE,message=FALSE}
+library(DURIAN)
+data(c("C","B","pDataC"))
+```
+
+##### Create Seurat Object
+```{r, cache=TRUE}
+library(Seurat)
+
+### prepare a Seurat object for this example
+seur = CreateSeuratObject(counts=C)
+seur@meta.data$cellID = rownames(seur@meta.data)
+seur@meta.data = dplyr::left_join(seur@meta.data,pDataC,by="cellID")
+
+# ### verify that DURIAN metadata fields are present
+# head(seur@meta.data[,c("cellID","cellType","sampleID")])
+# rowSums(GetAssayData(seur,slot="data"))
+# 
+# seur = NormalizeData(seur)
+# seur = ScaleData(seur)
+# seur = FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)
+# seur = RunPCA(seur, features = VariableFeatures(object = seur))
+# 
+# seur = RunUMAP(seur, dims = 1:10)
+# seur = FindClusters(object = seur)
+# plot(DimPlot(seur, reduction = "umap"))
+# 
+# 
+# head(seur@meta.data %>% left_join(pDataC))
+# 
+# head(tibble::rownames_to_column(seur@meta.data))
+# seur
+# 
+# head(seur@meta.data)
+# 
+# seur = FindNeighbors(seur, dims = 1:10)
+# seur = FindClusters(seur, resolution = 0.5)
+# 
+# 
+# p = plot(c(1,2,3),c(1,2,3))
+# 
+# ggplot(data.frame(x=c(1,2,3),y=c(1,2,3)),aes(x=x,y=y)) + geom_point()
+# 
+# pl = DimPlot(seur, reduction = "umap", group.by = "seurat_clusters")
+# pl2 = DimPlot(seur, reduction = "umap", group.by = "orig.ident")
+# 
+# pl
+# 
+# check1 = GetAssayData(object = seur, slot = "counts")
+# check2 = GetAssayData(object = seur, slot = "data")
+# 
+# 
+# 
+# pbmc <- SetAssayData(object = pbmc, slot = "scale.data", new.data = new.data)
+# 
+# 
+# adt.data <- GetAssayData(object =  ADT.object[['integrated']], slot = 'data')
+# RNA.object[["integrated.adt"]] <- CreateAssayObject(data = adt.data )
+# Default(RNA.object) <- "integrated.adt"
+# 
+# ## if you have a large ADT panel, set do.scale = FALSE
+# RNA.object <- ScaleData(RNA.object)
+# 
+# RNA.object <- RunPCA(RNA.object,  reduction.name = 'pca.adt', reduction.key = 'PCadt_' )
+# 
+# nCount = colSums(x = object, slot = "counts")  # nCount_RNA
+# nFeature = colSums(x = GetAssayData(object = object, slot = "counts") > 0)  # nFeatureRNA
+# 
+# genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))
+# comgenes = intersect(genes,rownames(B))
+# C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)
+# pDataC = pDataC[colnames(C),]
+# seur = SetAssayData(object = seur, slot = "test.scale", new.data = log(GetAssayData(seur,slot="counts")+1))
+# adt_assay <- CreateAssayObject(counts = cbmc.adt)
+# seur[["IMPUTED"]] = CreateAssayObject(counts = log(GetAssayData(seur,slot="counts")+1))
+
+```
+
+##### Run imputation on the single-cell data, using the bulk data for supervision.
+```{r,warning=FALSE,message=FALSE,results='hide',cache = TRUE}
+seur=run_durian(
+      scrabble_parameters = c(1,1e-6,1e-4),
+      nEM = 2,
+      seur = seur,
+      bulkdata = B,
+      deconv_method = "MuSiC",
+      nIter_outer = 2,
+      nIter_inner = 2,
+      nSDCIters = 1000,
+      DECONVGENETHRESH=-0.01,
+      SCRGENETHRESH=-0.01,
+      outerStats = FALSE,
+      durianEps=1e-3,
+      saveImputationLog = FALSE,
+      saveDeconvolutionLog = FALSE,
+      saveImputedStep=FALSE)
+```
+
+##### Construct a low-dimensional UMAP embedding from imputed and original data
+```{r,warning=FALSE,message=FALSE,results='hide'}
+library(umap)
+library(ggplot2)
+library(reshape2)
+umap_imputed = umap(t(GetAssayData(seur,assay = "IMPUTED")))
+umap_orig = umap(t(as.matrix(GetAssayData(seur,assay="RNA"))))
+imputed_df = cbind(umap_imputed$layout,seur@meta.data[,c("cellID","sampleID","cellType")])
+imputed_df$status = "Imputed"
+orig_df = cbind(umap_orig$layout,seur@meta.data[,c("cellID","sampleID","cellType")])
+orig_df$status = "Unimputed"
+df = rbind(imputed_df,orig_df)
+colnames(df) = c("UMAP1","UMAP2","cellID","sampleID","cellType","status")
+df$status = factor(df$status,levels=c("Unimputed","Imputed"))
+```
+
+##### Plot the original and imputed data
+```{r,warning=FALSE,message=FALSE,results='hide', fig.width=7,fig.height=3,dev = "svg",fig.ext="svg"}
+ggplot(df,aes(x=UMAP1, y=UMAP2,color=cellType)) + 
+      geom_point(size=1)+
+      facet_grid(~status,scales="free") + theme_bw()
+```
+
+

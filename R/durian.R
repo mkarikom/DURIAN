@@ -18,6 +18,7 @@ run_durian <- function(path=NULL,
                       scdata=NULL,
                       bulkdata=NULL,
                       metadata=NULL,
+                      seur=NULL,
                       deconv_method="dsLDA",
                       MCNITER=5000,
                       MCNPARTITIONS=5,
@@ -68,7 +69,13 @@ run_durian <- function(path=NULL,
   #############################################################################
   # read in source data
   #############################################################################
-  if(is.null(scdata) & is.null(metadata) & is.null(bulkdata)){
+  if(!is.null(seur) & !is.null(bulkdata)){
+    print("importing Seurat data")
+    metadata = seur@meta.data[,c("cellID","cellType","sampleID")]
+    rownames(metadata) = metadata$cellID
+    scdata = as.data.frame(GetAssayData(seur,slot="counts"))
+  }else if(is.null(scdata) & is.null(metadata) & is.null(bulkdata)){
+    print("importing CSV data")
     metadata = read.csv(pDataC_fn)[,c("cellID","cellType","sampleID")]  
     rownames(metadata) = metadata$cellID
     # truncate the bulk sample list for debugging
@@ -574,8 +581,13 @@ run_durian <- function(path=NULL,
       Dropout=c(dropout_rate),
     dropout_rate=c(dropout_rate_orig)),file.path(path,"imputation_loss.csv"))
   }
-   
-  return(list(P=thetahat,C=scdata,log=logdf))
+  
+  if(!is.null(seur)){
+    seur[["IMPUTED"]] = CreateAssayObject(counts = scdata)
+    return(seur)
+  }else{
+    return(list(P=thetahat,C=scdata,log=logdf))
+  }
 }
 
 #' Run original SCRABBLE

@@ -20,6 +20,7 @@ run_durian(
   scdata = NULL,
   bulkdata = NULL,
   metadata = NULL,
+  seur = NULL,
   deconv_method = "dsLDA",
   MCNITER = 5000,
   MCNPARTITIONS = 5,
