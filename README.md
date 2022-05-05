@@ -52,8 +52,21 @@ julia_setup(JULIA_HOME = Sys.getenv("JULIA_HOME"),verbose=TRUE,rebuild = TRUE,in
 
 ``` r
 install_github("mkarikom/DURIAN")
-#> Skipping install of 'DURIAN' from a github remote, the SHA1 (eab75305) has not changed since last install.
-#>   Use `force = TRUE` to force installation
+#> Downloading GitHub repo mkarikom/DURIAN@HEAD
+#> tibble  (3.1.6 -> 3.1.7) [CRAN]
+#> ggplot2 (3.3.5 -> 3.3.6) [CRAN]
+#> Seurat  (4.1.0 -> 4.1.1) [CRAN]
+#> Installing 3 packages: tibble, ggplot2, Seurat
+#> Installing packages into '/usr/local/lib/R/site-library'
+#> (as 'lib' is unspecified)
+#> * checking for file ‘/tmp/Rtmp086gHc/remotes6e8d3cf35c83/mkarikom-DURIAN-348ff50/DESCRIPTION’ ... OK
+#> * preparing ‘DURIAN’:
+#> * checking DESCRIPTION meta-information ... OK
+#> * checking for LF line-endings in source and make files and shell scripts
+#> * checking for empty or unneeded directories
+#> * building ‘DURIAN_0.1.tar.gz’
+#> Installing package into '/usr/local/lib/R/site-library'
+#> (as 'lib' is unspecified)
 ```
 
 ## Module Selection
@@ -90,16 +103,18 @@ library(DURIAN)
 data(c("C","B","pDataC"))
 ```
 
-<!-- ##### Preprocess the data -->
-<!-- ```{r, cache=TRUE} -->
-<!-- library(Seurat) -->
-<!-- seur = CreateSeuratObject(counts=C) -->
-<!-- seur = NormalizeData(seur) -->
-<!-- genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)) -->
-<!-- comgenes = intersect(genes,rownames(B)) -->
-<!-- C = subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3) -->
-<!-- pDataC = pDataC[colnames(C),] -->
-<!-- ``` -->
+##### Preprocess the data
+
+``` r
+library(Seurat)
+
+seur = CreateSeuratObject(counts=C)
+seur = NormalizeData(seur)
+genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))
+comgenes = intersect(genes,rownames(B))
+C = subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)
+pDataC = pDataC[colnames(C),]
+```
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
 
@@ -149,4 +164,4 @@ ggplot(df,aes(x=UMAP1, y=UMAP2,color=cellType)) +
       facet_grid(~status,scales="free") + theme_bw()
 ```
 
-![](man/figures/unnamed-chunk-7-1.svg)<!-- -->
+![](man/figures/unnamed-chunk-8-1.svg)<!-- -->

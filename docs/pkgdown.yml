@@ -3,7 +3,8 @@ pkgdown: 2.0.3
 pkgdown_sha: ~
 articles:
   basic_usage: basic_usage.html
-last_built: 2022-05-03T17:56Z
+  signaling: signaling.html
+last_built: 2022-05-04T18:10Z
 urls:
   reference: https://mkarikom.github.io/DURIAN/reference
   article: https://mkarikom.github.io/DURIAN/articles

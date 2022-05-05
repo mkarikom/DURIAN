@@ -19,19 +19,20 @@ knitr::opts_chunk$set(
 ```{r setup,warning=FALSE,message=FALSE}
 library(DURIAN)
 data(c("C","B","pDataC"))
+set.seed(42)
 ```
 
-<!-- ##### Preprocess the data -->
-<!-- ```{r, cache=TRUE} -->
-<!-- library(Seurat) -->
+##### Preprocess the data
+```{r, cache=TRUE}
+library(Seurat)
 
-<!-- seur = CreateSeuratObject(counts=C) -->
-<!-- seur = NormalizeData(seur) -->
-<!-- genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)) -->
-<!-- comgenes = intersect(genes,rownames(B)) -->
-<!-- C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3) -->
-<!-- pDataC = pDataC[colnames(C),] -->
-<!-- ``` -->
+seur = CreateSeuratObject(counts=C)
+seur = NormalizeData(seur)
+genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))
+comgenes = intersect(genes,rownames(B))
+C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)
+pDataC = pDataC[colnames(C),]
+```
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
 ```{r,warning=FALSE,message=FALSE,results='hide',cache = TRUE}

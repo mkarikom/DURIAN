@@ -18,9 +18,9 @@ Imports: mtSCRABBLE (>= 0.0.1),
         umap (>= 0.2.7.0),
         Biobase (>= 2.52.0)
 Remotes: 
-        git::https://github.com/mkarikom/MuSiC.git@biobaseImport,
-        git::https://github.com/mkarikom/mtSCRABBLE.git@master,
-        git::https://github.com/sqjin/CellChat.git@master
+        github::mkarikom/MuSiC@biobaseImport,
+        github::mkarikom/mtSCRABBLE@master,
+        github::sqjin/CellChat@master
 Encoding: UTF-8
 License: MIT
 URL: https://github.com/mkarikom/DURIAN,

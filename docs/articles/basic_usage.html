@@ -49,6 +49,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/basic_usage.html">Basic Usage</a>
+    <a class="dropdown-item" href="../articles/signaling.html">Signaling Network Recovery from Imputed Seurat Output</a>
   </div>
 </li>
       </ul>
@@ -100,6 +101,27 @@
 <!-- C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3) -->
 <!-- pDataC = pDataC[colnames(C),] -->
 <!-- ``` -->
+<!-- ##### Run imputation on the single-cell data, using the bulk data for supervision. -->
+<!-- ```{r,warning=FALSE,message=FALSE,results='hide',cache = TRUE} -->
+<!-- impresult_list=run_durian( -->
+<!--       scrabble_parameters = c(1,1e-6,1e-4), -->
+<!--       nEM = 5, -->
+<!--       scdata = C, -->
+<!--       metadata = pDataC, -->
+<!--       bulkdata = B, -->
+<!--       deconv_method = "MuSiC", -->
+<!--       nIter_outer = 10, -->
+<!--       nIter_inner = 10, -->
+<!--       nSDCIters = 500000, -->
+<!--       DECONVGENETHRESH=-0.01, -->
+<!--       SCRGENETHRESH=-0.01, -->
+<!--       outerStats = FALSE, -->
+<!--       durianEps=1e-3, -->
+<!--       saveImputationLog = FALSE, -->
+<!--       saveDeconvolutionLog = FALSE, -->
+<!--       saveImputedStep=FALSE) -->
+<!--   impresult = impresult_list[["C"]] -->
+<!-- ``` -->
 </div>
 <div class="section level5">
 <h5 id="run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-">Run imputation on the single-cell data, using the bulk data for
@@ -108,14 +130,14 @@ supervision.<a class="anchor" aria-label="anchor" href="#run-imputation-on-the-s
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">impresult_list</span><span class="op">=</span><span class="fu"><a href="../reference/run_durian.html">run_durian</a></span><span class="op">(</span>
       scrabble_parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1e-6</span>,<span class="fl">1e-4</span><span class="op">)</span>,
-      nEM <span class="op">=</span> <span class="fl">5</span>,
+      nEM <span class="op">=</span> <span class="fl">2</span>,
       scdata <span class="op">=</span> <span class="va">C</span>,
       metadata <span class="op">=</span> <span class="va">pDataC</span>,
       bulkdata <span class="op">=</span> <span class="va">B</span>,
       deconv_method <span class="op">=</span> <span class="st">"MuSiC"</span>,
-      nIter_outer <span class="op">=</span> <span class="fl">10</span>,
-      nIter_inner <span class="op">=</span> <span class="fl">10</span>,
-      nSDCIters <span class="op">=</span> <span class="fl">500000</span>,
+      nIter_outer <span class="op">=</span> <span class="fl">2</span>,
+      nIter_inner <span class="op">=</span> <span class="fl">2</span>,
+      nSDCIters <span class="op">=</span> <span class="fl">1000</span>,
       DECONVGENETHRESH<span class="op">=</span><span class="op">-</span><span class="fl">0.01</span>,
       SCRGENETHRESH<span class="op">=</span><span class="op">-</span><span class="fl">0.01</span>,
       outerStats <span class="op">=</span> <span class="cn">FALSE</span>,
