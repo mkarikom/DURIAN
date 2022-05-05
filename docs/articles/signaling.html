@@ -95,90 +95,21 @@
 <div class="section level5">
 <h5 id="create-seurat-object">Create Seurat Object<a class="anchor" aria-label="anchor" href="#create-seurat-object"></a>
 </h5>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span>
-
-<span class="co">### prepare a Seurat object for this example</span>
-<span class="va">seur</span> <span class="op">=</span> <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/CreateSeuratObject.html" class="external-link">CreateSeuratObject</a></span><span class="op">(</span>counts<span class="op">=</span><span class="va">C</span><span class="op">)</span>
-<span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">cellID</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span><span class="op">)</span>
-<span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span>,<span class="va">pDataC</span>,by<span class="op">=</span><span class="st">"cellID"</span><span class="op">)</span>
-
-<span class="co"># ### verify that DURIAN metadata fields are present</span>
-<span class="co"># head(seur@meta.data[,c("cellID","cellType","sampleID")])</span>
-<span class="co"># rowSums(GetAssayData(seur,slot="data"))</span>
-<span class="co"># </span>
-<span class="co"># seur = NormalizeData(seur)</span>
-<span class="co"># seur = ScaleData(seur)</span>
-<span class="co"># seur = FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500)</span>
-<span class="co"># seur = RunPCA(seur, features = VariableFeatures(object = seur))</span>
-<span class="co"># </span>
-<span class="co"># seur = RunUMAP(seur, dims = 1:10)</span>
-<span class="co"># seur = FindClusters(object = seur)</span>
-<span class="co"># plot(DimPlot(seur, reduction = "umap"))</span>
-<span class="co"># </span>
-<span class="co"># </span>
-<span class="co"># head(seur@meta.data %&gt;% left_join(pDataC))</span>
-<span class="co"># </span>
-<span class="co"># head(tibble::rownames_to_column(seur@meta.data))</span>
-<span class="co"># seur</span>
-<span class="co"># </span>
-<span class="co"># head(seur@meta.data)</span>
-<span class="co"># </span>
-<span class="co"># seur = FindNeighbors(seur, dims = 1:10)</span>
-<span class="co"># seur = FindClusters(seur, resolution = 0.5)</span>
-<span class="co"># </span>
-<span class="co"># </span>
-<span class="co"># p = plot(c(1,2,3),c(1,2,3))</span>
-<span class="co"># </span>
-<span class="co"># ggplot(data.frame(x=c(1,2,3),y=c(1,2,3)),aes(x=x,y=y)) + geom_point()</span>
-<span class="co"># </span>
-<span class="co"># pl = DimPlot(seur, reduction = "umap", group.by = "seurat_clusters")</span>
-<span class="co"># pl2 = DimPlot(seur, reduction = "umap", group.by = "orig.ident")</span>
-<span class="co"># </span>
-<span class="co"># pl</span>
-<span class="co"># </span>
-<span class="co"># check1 = GetAssayData(object = seur, slot = "counts")</span>
-<span class="co"># check2 = GetAssayData(object = seur, slot = "data")</span>
-<span class="co"># </span>
-<span class="co"># </span>
-<span class="co"># </span>
-<span class="co"># pbmc &lt;- SetAssayData(object = pbmc, slot = "scale.data", new.data = new.data)</span>
-<span class="co"># </span>
-<span class="co"># </span>
-<span class="co"># adt.data &lt;- GetAssayData(object =  ADT.object[['integrated']], slot = 'data')</span>
-<span class="co"># RNA.object[["integrated.adt"]] &lt;- CreateAssayObject(data = adt.data )</span>
-<span class="co"># Default(RNA.object) &lt;- "integrated.adt"</span>
-<span class="co"># </span>
-<span class="co"># ## if you have a large ADT panel, set do.scale = FALSE</span>
-<span class="co"># RNA.object &lt;- ScaleData(RNA.object)</span>
-<span class="co"># </span>
-<span class="co"># RNA.object &lt;- RunPCA(RNA.object,  reduction.name = 'pca.adt', reduction.key = 'PCadt_' )</span>
-<span class="co"># </span>
-<span class="co"># nCount = colSums(x = object, slot = "counts")  # nCount_RNA</span>
-<span class="co"># nFeature = colSums(x = GetAssayData(object = object, slot = "counts") &gt; 0)  # nFeatureRNA</span>
-<span class="co"># </span>
-<span class="co"># genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))</span>
-<span class="co"># comgenes = intersect(genes,rownames(B))</span>
-<span class="co"># C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)</span>
-<span class="co"># pDataC = pDataC[colnames(C),]</span>
-<span class="co"># seur = SetAssayData(object = seur, slot = "test.scale", new.data = log(GetAssayData(seur,slot="counts")+1))</span>
-<span class="co"># adt_assay &lt;- CreateAssayObject(counts = cbmc.adt)</span>
-<span class="co"># seur[["IMPUTED"]] = CreateAssayObject(counts = log(GetAssayData(seur,slot="counts")+1))</span></code></pre></div>
 </div>
 <div class="section level5">
 <h5 id="run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-">Run imputation on the single-cell data, using the bulk data for
 supervision.<a class="anchor" aria-label="anchor" href="#run-imputation-on-the-single-cell-data-using-the-bulk-data-for-supervision-"></a>
 </h5>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">seur</span><span class="op">=</span><span class="fu"><a href="../reference/run_durian.html">run_durian</a></span><span class="op">(</span>
       scrabble_parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1e-6</span>,<span class="fl">1e-4</span><span class="op">)</span>,
-      nEM <span class="op">=</span> <span class="fl">2</span>,
+      nEM <span class="op">=</span> <span class="fl">5</span>,
       seur <span class="op">=</span> <span class="va">seur</span>,
       bulkdata <span class="op">=</span> <span class="va">B</span>,
       deconv_method <span class="op">=</span> <span class="st">"MuSiC"</span>,
-      nIter_outer <span class="op">=</span> <span class="fl">2</span>,
-      nIter_inner <span class="op">=</span> <span class="fl">2</span>,
-      nSDCIters <span class="op">=</span> <span class="fl">1000</span>,
+      nIter_outer <span class="op">=</span> <span class="fl">10</span>,
+      nIter_inner <span class="op">=</span> <span class="fl">10</span>,
+      nSDCIters <span class="op">=</span> <span class="fl">500000</span>,
       DECONVGENETHRESH<span class="op">=</span><span class="op">-</span><span class="fl">0.01</span>,
       SCRGENETHRESH<span class="op">=</span><span class="op">-</span><span class="fl">0.01</span>,
       outerStats <span class="op">=</span> <span class="cn">FALSE</span>,
@@ -191,31 +122,78 @@ supervision.<a class="anchor" aria-label="anchor" href="#run-imputation-on-the-s
 <span class="va">seur</span></code></pre></div>
 </div>
 <div class="section level5">
-<h5 id="construct-a-low-dimensional-umap-embedding-from-imputed-and-original-data">Construct a low-dimensional UMAP embedding from imputed and original
-data<a class="anchor" aria-label="anchor" href="#construct-a-low-dimensional-umap-embedding-from-imputed-and-original-data"></a>
+<h5 id="construct-the-cellchat-object">Construct the CellChat Object<a class="anchor" aria-label="anchor" href="#construct-the-cellchat-object"></a>
 </h5>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tkonopka/umap" class="external-link">umap</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape" class="external-link">reshape2</a></span><span class="op">)</span>
-<span class="va">umap_imputed</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/umap/man/umap.html" class="external-link">umap</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/AssayData.html" class="external-link">GetAssayData</a></span><span class="op">(</span><span class="va">seur</span>,assay <span class="op">=</span> <span class="st">"IMPUTED"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="va">umap_orig</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/umap/man/umap.html" class="external-link">umap</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/AssayData.html" class="external-link">GetAssayData</a></span><span class="op">(</span><span class="va">seur</span>,assay<span class="op">=</span><span class="st">"RNA"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="va">imputed_df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">umap_imputed</span><span class="op">$</span><span class="va">layout</span>,<span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cellID"</span>,<span class="st">"sampleID"</span>,<span class="st">"cellType"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
-<span class="va">imputed_df</span><span class="op">$</span><span class="va">status</span> <span class="op">=</span> <span class="st">"Imputed"</span>
-<span class="va">orig_df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">umap_orig</span><span class="op">$</span><span class="va">layout</span>,<span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cellID"</span>,<span class="st">"sampleID"</span>,<span class="st">"cellType"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
-<span class="va">orig_df</span><span class="op">$</span><span class="va">status</span> <span class="op">=</span> <span class="st">"Unimputed"</span>
-<span class="va">df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">imputed_df</span>,<span class="va">orig_df</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UMAP1"</span>,<span class="st">"UMAP2"</span>,<span class="st">"cellID"</span>,<span class="st">"sampleID"</span>,<span class="st">"cellType"</span>,<span class="st">"status"</span><span class="op">)</span>
-<span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">status</span>,levels<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unimputed"</span>,<span class="st">"Imputed"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>Comparing two datasets in CellChat requires unique names for each
+cell. Thus, the label of each Seurat assay (<code>RNA</code> and
+<code>IMPUTED</code>) is prepended to the cell ID during creation of the
+individual CellChat objects, prior to merging them.</p>
+<p>For full documentation on the CellChat-specific steps below, please
+refer to <a href="https://github.com/sqjin/CellChat/blob/master/tutorial/Comparison_analysis_of_multiple_datasets.html" class="external-link">the
+corresponding CellChat tutorial</a>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">CellChat</span><span class="op">)</span>
+
+<span class="co"># CellChat Raw Object</span>
+<span class="va">CellChatDB</span> <span class="op">=</span> <span class="va">CellChatDB.human</span>
+<span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/normalizeData.html" class="external-link">normalizeData</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/AssayData.html" class="external-link">GetAssayData</a></span><span class="op">(</span><span class="va">seur</span>,assay<span class="op">=</span><span class="st">"RNA"</span>,slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"RNA."</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">)</span>
+<span class="va">meta</span> <span class="op">=</span> <span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cellType"</span>,<span class="st">"sampleID"</span><span class="op">)</span><span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>
+<span class="va">meta</span><span class="op">$</span><span class="va">sampleID</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/createCellChat.html" class="external-link">createCellChat</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">data</span>, meta <span class="op">=</span> <span class="va">meta</span>, group.by <span class="op">=</span> <span class="st">"cellType"</span><span class="op">)</span>
+<span class="va">cellchat</span><span class="op">@</span><span class="va">DB</span> <span class="op">&lt;-</span> <span class="va">CellChatDB</span>
+
+<span class="co"># Raw Object Processing</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/subsetData.html" class="external-link">subsetData</a></span><span class="op">(</span><span class="va">cellchat</span><span class="op">)</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/identifyOverExpressedGenes.html" class="external-link">identifyOverExpressedGenes</a></span><span class="op">(</span><span class="va">cellchat</span><span class="op">)</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/identifyOverExpressedInteractions.html" class="external-link">identifyOverExpressedInteractions</a></span><span class="op">(</span><span class="va">cellchat</span><span class="op">)</span>
+
+<span class="co"># Raw Object Individual Probs</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/computeCommunProb.html" class="external-link">computeCommunProb</a></span><span class="op">(</span><span class="va">cellchat</span>,raw.use <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/computeCommunProbPathway.html" class="external-link">computeCommunProbPathway</a></span><span class="op">(</span><span class="va">cellchat</span><span class="op">)</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/aggregateNet.html" class="external-link">aggregateNet</a></span><span class="op">(</span><span class="va">cellchat</span><span class="op">)</span>
+<span class="va">cellchat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/netAnalysis_computeCentrality.html" class="external-link">netAnalysis_computeCentrality</a></span><span class="op">(</span><span class="va">cellchat</span>, slot.name <span class="op">=</span> <span class="st">"netP"</span><span class="op">)</span>
+
+<span class="co"># CellChat Imputed Object</span>
+<span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/normalizeData.html" class="external-link">normalizeData</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/AssayData.html" class="external-link">GetAssayData</a></span><span class="op">(</span><span class="va">seur</span>,assay<span class="op">=</span><span class="st">"IMPUTED"</span>,slot <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"IMPUTED."</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">)</span>
+<span class="va">meta</span> <span class="op">=</span> <span class="va">seur</span><span class="op">@</span><span class="va">meta.data</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cellType"</span>,<span class="st">"sampleID"</span><span class="op">)</span><span class="op">]</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">meta</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>
+<span class="va">meta</span><span class="op">$</span><span class="va">sampleID</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/createCellChat.html" class="external-link">createCellChat</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">data</span>, meta <span class="op">=</span> <span class="va">meta</span>, group.by <span class="op">=</span> <span class="st">"cellType"</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span><span class="op">@</span><span class="va">DB</span> <span class="op">&lt;-</span> <span class="va">CellChatDB</span>
+
+<span class="co"># Imputed Object Processing</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/subsetData.html" class="external-link">subsetData</a></span><span class="op">(</span><span class="va">cellchat_imputed</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/identifyOverExpressedGenes.html" class="external-link">identifyOverExpressedGenes</a></span><span class="op">(</span><span class="va">cellchat_imputed</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/identifyOverExpressedInteractions.html" class="external-link">identifyOverExpressedInteractions</a></span><span class="op">(</span><span class="va">cellchat_imputed</span><span class="op">)</span>
+
+<span class="co"># Imputed Object Individual Probs</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/computeCommunProb.html" class="external-link">computeCommunProb</a></span><span class="op">(</span><span class="va">cellchat_imputed</span>,raw.use <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/computeCommunProbPathway.html" class="external-link">computeCommunProbPathway</a></span><span class="op">(</span><span class="va">cellchat_imputed</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/aggregateNet.html" class="external-link">aggregateNet</a></span><span class="op">(</span><span class="va">cellchat_imputed</span><span class="op">)</span>
+<span class="va">cellchat_imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/netAnalysis_computeCentrality.html" class="external-link">netAnalysis_computeCentrality</a></span><span class="op">(</span><span class="va">cellchat_imputed</span>, slot.name <span class="op">=</span> <span class="st">"netP"</span><span class="op">)</span>
+
+<span class="va">cellchats_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cellchats_list</span><span class="op">[[</span><span class="st">"orig"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">cellchat</span>
+<span class="va">cellchats_list</span><span class="op">[[</span><span class="st">"imputed"</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">cellchat_imputed</span>
+<span class="va">merged</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/mergeCellChat.html" class="external-link">mergeCellChat</a></span><span class="op">(</span><span class="va">cellchats_list</span>, add.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cellchats_list</span><span class="op">)</span>,cell.prefix<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div class="section level5">
-<h5 id="plot-the-original-and-imputed-data">Plot the original and imputed data<a class="anchor" aria-label="anchor" href="#plot-the-original-and-imputed-data"></a>
+<h5 id="the-impact-of-imputation-on-number-of-interactions-between-cell-types">The Impact of Imputation on Number of Interactions Between Cell
+Types<a class="anchor" aria-label="anchor" href="#the-impact-of-imputation-on-number-of-interactions-between-cell-types"></a>
 </h5>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>,<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">UMAP1</span>, y<span class="op">=</span><span class="va">UMAP2</span>,color<span class="op">=</span><span class="va">cellType</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size<span class="op">=</span><span class="fl">1</span><span class="op">)</span><span class="op">+</span>
-      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span><span class="op">~</span><span class="va">status</span>,scales<span class="op">=</span><span class="st">"free"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<p><img src="signaling_files/figure-html/unnamed-chunk-5-1.svg" width="672"></p>
+<p>The impact of imputation is generally data-dependent and asymmetric
+across pathways. Changes in the number of interactions between cell
+types shows that dropout is also cell type specific.</p>
+<p>For full documentation on the CellChat-specific steps below, please
+refer to <a href="https://github.com/sqjin/CellChat/blob/master/tutorial/Comparison_analysis_of_multiple_datasets.html" class="external-link">the
+corresponding CellChat tutorial</a>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/CellChat/man/netVisual_heatmap.html" class="external-link">netVisual_heatmap</a></span><span class="op">(</span><span class="va">merged</span><span class="op">)</span>
+<span class="co">#&gt; Do heatmap based on a merged object</span></code></pre></div>
+<p><img src="signaling_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 </div>
   </main>
 </div>

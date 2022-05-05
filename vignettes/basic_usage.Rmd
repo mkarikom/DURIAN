@@ -23,7 +23,7 @@ set.seed(42)
 ```
 
 ##### Preprocess the data
-```{r, cache=TRUE}
+```{r}
 library(Seurat)
 
 seur = CreateSeuratObject(counts=C)
@@ -35,7 +35,7 @@ pDataC = pDataC[colnames(C),]
 ```
 
 ##### Run imputation on the single-cell data, using the bulk data for supervision.
-```{r,warning=FALSE,message=FALSE,results='hide',cache = TRUE}
+```{r,warning=FALSE,message=FALSE,results='hide'}
 impresult_list=run_durian(
       scrabble_parameters = c(1,1e-6,1e-4),
       nEM = 5,

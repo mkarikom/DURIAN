@@ -18,9 +18,14 @@ DURIAN (Deconvolution and mUltitask-Regression-based ImputAtioN) is a hybrid, it
 
 For examples of pipelines involving DURIAN, users should consult [the scripts](https://github.com/mkarikom/DURIAN_paper) used to generate the benchmarking and figures for our paper.
 
+## Get Started
+* Installation: see below
+* Basic usage of DURIAN running and visualizing imputation of Human single-cell data in `vignette("basic_usage")`.
+* Use DURIAN on Seurat objects directly, and perform cell signaling analysis in CellChat in `vignette("signaling")`.
+
 ## Installation
-### Dependencies
-```{julia}
+#### Dependencies
+```{julia,eval = FALSE}
 ENV["R_HOME"]="/usr/local/lib/R"
 Pkg.add("RCall")
 Pkg.build("RCall")
@@ -29,7 +34,7 @@ using RCall
 Pkg.add(url="https://github.com/mkarikom/DistributedStwdLDA.jl.git")
 ```
 
-```{r}
+```{r,eval = FALSE}
 # Install the latest version and dependencies from github
 library(devtools)
 devtools::install_github("mkarikom/MuSiC@biobaseImport")
@@ -42,12 +47,12 @@ library(JuliaCall)
 julia_setup(JULIA_HOME = Sys.getenv("JULIA_HOME"),verbose=TRUE,rebuild = TRUE,install=FALSE)
 ```
 
-### Package
-```{r}
+#### Package
+```{r,eval = FALSE}
 install_github("mkarikom/DURIAN")
 ```
 
-## Module Selection
+#### Module Selection
 <div>
 DURIAN supports the integration of custom deconvolution modules, even modules written in other languages, such as Julia.  Module selection is made using the `deconv_method` argument to `DURIAN::run_durian` and the default is `deconv_method = "MuSiC"`.
 
@@ -55,13 +60,4 @@ Current deconvolution alternatives include:
 
 -   fast, NNLS regression using [MuSiC (R)](https://github.com/xuranw/MuSiC)
 -   distributed Monte Carlo inference using [dsLDA (Julia)](https://github.com/mkarikom/DistributedStwdLDA.jl)
-</div>
-
-## Getting Started
-<div>
-Check out basic usage of DURIAN running and visualizing imputation of Human single-cell data in `vignette("basic_usage")`.
-</div>
-
-<div>
-Use DURIAN on Seurat objects directly, and perform cell signaling analysis in CellChat in `vignette("signaling")`.
 </div>
