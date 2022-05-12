@@ -1,9 +1,9 @@
 
 ---
-title: "Signaling Network Recovery from Imputed Seurat Output"
+title: "Imputation/Signaling from Seurat Output"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Seurat+Signaling}
+  %\VignetteIndexEntry{Imputation/Signaling from Seurat Output}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -64,7 +64,6 @@ seur=run_durian(
       saveImputedStep=FALSE)
 
 dim(seur)
-seur
 ```
 
 ##### Construct the CellChat Object

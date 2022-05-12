@@ -1,0 +1,5 @@
+[deps]
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+DistributedStwdLDA = "4f7c0122-5260-4c96-aca3-bf9f51513501"
+RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"

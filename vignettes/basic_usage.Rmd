@@ -24,12 +24,7 @@ set.seed(42)
 
 ##### Preprocess the data
 ```{r}
-library(Seurat)
-
-seur = CreateSeuratObject(counts=C)
-seur = NormalizeData(seur)
-genes = VariableFeatures(FindVariableFeatures(seur, selection.method = "vst", nfeatures = 1500))
-comgenes = intersect(genes,rownames(B))
+comgenes = intersect(rownames(C),rownames(B))
 C = DURIAN::subsetsc(scremoutlier(C),geneids=comgenes,return_obj=TRUE,nsd=3)
 pDataC = pDataC[colnames(C),]
 ```

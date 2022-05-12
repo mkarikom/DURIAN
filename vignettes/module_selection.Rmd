@@ -1,0 +1,132 @@
+
+---
+title: "Module Selection"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Module Selection}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+DURIAN supports the integration of custom deconvolution modules, even modules written in other languages, such as Julia.  Module selection is made using the `deconv_method` argument to `DURIAN::run_durian` and the default is `deconv_method = "MuSiC"`.
+
+Current deconvolution alternatives include:
+
+-   fast, NNLS regression using [MuSiC (R)](https://github.com/xuranw/MuSiC)
+-   distributed Monte Carlo inference using [dsLDA (Julia)](https://github.com/mkarikom/DistributedStwdLDA.jl)
+
+##### Load the package and data
+```{r setup,warning=FALSE,message=FALSE}
+library(DURIAN)
+```
+
+We will run DURIAN with two different deconvolution modules: LDA-based topic model and NNLS-based regression.
+
+We select a random subset of 1000 genes present in both bulk and single-cell data, as well as a subset of 5 patients from the original 20, to speed up the example.
+
+##### Preprocess the data
+```{r}
+set.seed(42)
+B.sub = B[,1:5]
+C.sub = as.data.frame(C %>% sample_n(1000))
+comgenes = intersect(rownames(C.sub),rownames(B.sub))
+C.sub = DURIAN::subsetsc(scremoutlier(C.sub),geneids=comgenes,return_obj=TRUE,nsd=3)
+B.sub = B.sub[comgenes,]
+pDataC.sub = pDataC[colnames(C.sub),]
+```
+
+Run imputation using dsLDA deconvolution (julia).
+##### Run imputation on the single-cell data, using the bulk data for supervision.
+```{r,warning=FALSE,message=FALSE,results='hide'}
+library(JuliaCall)
+julia_library("DistributedStwdLDA")
+julia_library("Distributed")
+julia_call("procsN",as.integer(ncol(B.sub)+1))
+julia_command("@everywhere using DistributedStwdLDA")
+
+impresult_list_lda=run_durian(
+      scrabble_parameters = c(1,1e-6,1e-4),
+      nEM = 5,
+      scdata = C.sub,
+      metadata = pDataC.sub,
+      bulkdata = B.sub,
+      deconv_method = "dsLDA",
+      MCNITER = as.integer(2000),
+      MINCELLSTOPICCORP=as.integer(1),
+      MCNPARTITIONS=ncol(B.sub),
+      MCNCHAINS=as.integer(1),
+      MCTHINNING=as.integer(1),
+      MCBURNRATE=0.5,
+      LDASCALEBLK="lognorm",
+      LDASCALESC="column",
+      LDASCALEFACBLK=10000,
+      nIter_outer = 10,
+      nIter_inner = 10,
+      nSDCIters = 500000,
+      DECONVGENETHRESH=-0.01,
+      SCRGENETHRESH=-0.01,
+      outerStats = FALSE,
+      durianEps=1e-3,
+      saveImputationLog = FALSE,
+      saveDeconvolutionLog = FALSE,
+      saveImputedStep=FALSE)
+  impresult_lda = impresult_list_lda[["C"]]
+```
+
+Run imputation using MuSiC deconvolution (R).  Note: by default, the mtSCRABBLE backend for DURIAN imputation (regardless of deconvolution module) calls `irlba::irlba()` for speed when computing matrix norms for the DURIAN objective.  Currently, `irlba` does not gracefully handle the case where a randomly chosen starting singular vector is close to the null space.  When the corresponding error is encountered
+##### Run imputation on the single-cell data, using the bulk data for supervision.
+```{r,warning=FALSE,message=FALSE,results='hide'}
+impresult_list=run_durian(
+      scrabble_parameters = c(1,1e-6,1e-4),
+      nEM = 1,
+      scdata = C.sub,
+      metadata = pDataC.sub,
+      bulkdata = B.sub,
+      deconv_method = "MuSiC",
+      nIter_outer = 10,
+      nIter_inner = 10,
+      nSDCIters = 500000,
+      DECONVGENETHRESH=-0.01,
+      SCRGENETHRESH=-0.01,
+      outerStats = FALSE,
+      durianEps=1e-3,
+      saveImputationLog = FALSE,
+      saveDeconvolutionLog = FALSE,
+      saveImputedStep=FALSE)
+  impresult = impresult_list[["C"]]
+```
+
+
+##### Construct a low-dimensional UMAP embedding from imputed and original data
+```{r,warning=FALSE,message=FALSE,results='hide'}
+library(umap)
+library(ggplot2)
+library(reshape2)
+common_cells = base::intersect(base::intersect(colnames(impresult_lda),colnames(impresult)),colnames(C))
+umap_imputed_lda = umap(t(impresult_lda[,common_cells]),preserve.seed=TRUE)
+umap_imputed = umap(t(impresult[,common_cells]),preserve.seed=TRUE)
+umap_orig = umap(t(as.matrix(C[,common_cells])),preserve.seed=TRUE)
+imputed_df_lda = cbind(umap_imputed_lda$layout,pDataC.sub[common_cells,])
+imputed_df_lda$status = "Imputed [LDA deconv.]"
+imputed_df = cbind(umap_imputed$layout,pDataC.sub[common_cells,])
+imputed_df$status = "Imputed [W-NNLS deconv.]"
+orig_df = cbind(umap_orig$layout,pDataC.sub[common_cells,])
+orig_df$status = "Unimputed"
+df = rbind(imputed_df,imputed_df_lda,orig_df)
+colnames(df) = c("UMAP1","UMAP2","cellID","cellType","sampleID","status")
+df$status = factor(df$status,levels=c("Imputed [W-NNLS deconv.]","Imputed [LDA deconv.]", "Unimputed"))
+```
+
+##### Plot the original and imputed data
+```{r,warning=FALSE,message=FALSE,results='hide', fig.width=7,fig.height=3,dev = "svg",fig.ext="svg"}
+ggplot(df,aes(x=UMAP1, y=UMAP2,color=cellType)) + 
+      geom_point(size=1)+
+      facet_grid(~status,scales="free") + theme_bw()
+```

@@ -17,6 +17,8 @@ benchmarking and figures for our paper.
 -   Installation: see below
 -   Basic usage of DURIAN running and visualizing imputation of Human
     single-cell data in `vignette("basic_usage")`.
+-   Selection of the DURIAN deconvolution module, including R/C++ and
+    Julia-based modules `vignette("module_selection")`.
 -   Use DURIAN on Seurat objects directly, and perform cell signaling
     analysis in CellChat in `vignette("signaling")`.
 
@@ -25,7 +27,10 @@ benchmarking and figures for our paper.
 #### Dependencies
 
 ``` julia
+ENV["JULIA_PROJECT"]=pwd()
 ENV["R_HOME"]="/usr/local/lib/R"
+using Pkg
+Pkg.add("Distributed")
 Pkg.add("RCall")
 Pkg.build("RCall")
 using RCall
@@ -40,7 +45,8 @@ devtools::install_github("mkarikom/MuSiC@biobaseImport")
 devtools::install_github("mkarikom/mtSCRABBLE")
 install.packages("foreach")
 
-Sys.setenv(JULIA_HOME="/usr/local/julia-1.7.2/bin")
+Sys.setenv(JULIA_HOME="/usr/local/julia-1.6.6/bin")
+
 install.packages("JuliaCall")
 library(JuliaCall)
 julia_setup(JULIA_HOME = Sys.getenv("JULIA_HOME"),verbose=TRUE,rebuild = TRUE,install=FALSE)
@@ -51,21 +57,3 @@ julia_setup(JULIA_HOME = Sys.getenv("JULIA_HOME"),verbose=TRUE,rebuild = TRUE,in
 ``` r
 install_github("mkarikom/DURIAN")
 ```
-
-#### Module Selection
-
-<div>
-
-DURIAN supports the integration of custom deconvolution modules, even
-modules written in other languages, such as Julia. Module selection is
-made using the `deconv_method` argument to `DURIAN::run_durian` and the
-default is `deconv_method = "MuSiC"`.
-
-Current deconvolution alternatives include:
-
--   fast, NNLS regression using [MuSiC
-    (R)](https://github.com/xuranw/MuSiC)
--   distributed Monte Carlo inference using [dsLDA
-    (Julia)](https://github.com/mkarikom/DistributedStwdLDA.jl)
-
-</div>

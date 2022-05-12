@@ -423,9 +423,9 @@ run_durian <- function(path=NULL,
     End_POSIX = as.POSIXct(as.numeric(End), origin="1970-01-01")
     totaltime = difftime(End_POSIX,Start_POSIX,units="mins")
 
-    if(!emDiag && itercount == 1){
-      print("cond 1")
-      # first iteration E-step succeeds, continue
+    if(!emDiag && itercount == 1 && itercount >= nEM){
+      print(paste0("DURIAN iteration ",itercount,": iteration limit, stop"))
+      emstatus=0
       iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime)
       names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
       if(!is.null(imputebenchmark)){
@@ -455,14 +455,43 @@ run_durian <- function(path=NULL,
           write.csv(scdata,file.path(path,"imputed_C.csv"))
           write.csv(scdata,file.path(iterPath,"imputed_C.csv"))
       }
+    }else if(!emDiag && itercount == 1){
+        print(paste0("DURIAN iteration ",itercount,": continue"))
+        iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime)
+        names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
+        if(!is.null(imputebenchmark)){
+          iteroutput$durian_rmse = impute_rmse
+          iteroutput$durian_genecor = cor_gene
+          iteroutput$durian_cellcor = cor_cell
+          iteroutput$durian_mean_genecor = mean_cor_gene
+          iteroutput$durian_mean_cellcor = mean_cor_cell
+          iteroutput$dropout_rate = dropout_rate
+          iteroutput$errnorm = errnorm
+        }
+        if(!is.null(deconvbenchmark)){
+          iteroutput$deconv_rmse = deconv_rmse
+          iteroutput$deconv_cor_celltype = deconv_cor_celltype
+          iteroutput$deconv_cor_bulksample = deconv_cor_bulksample
+          iteroutput$deconv_cor_mean_celltype = deconv_cor_mean_celltype
+          iteroutput$deconv_cor_mean_bulksample = deconv_cor_mean_bulksample
+        }
+        logdf[itercount+1,] = iteroutput[colnames(logdf)]
+        if(saveImputationLog){
+          dir.create(path)
+          write.csv(logdf,file.path(path,paste0("DURIAN.",deconv_method,"_logdf.csv")))
+        }
+        if(saveImputedStep){
+          print(paste0("saving step", itercount, " imputation result"))
+          dir.create(iterPath,recursive=TRUE)
+          write.csv(scdata,file.path(path,"imputed_C.csv"))
+          write.csv(scdata,file.path(iterPath,"imputed_C.csv"))
+        }
     }else if(!emDiag && scrabble_loss > as.numeric(logdf$scrabbleLoss[itercount])){
-      print("cond 2")
-      # E-step succeeds but mtscrabble increases, stop
+      print(paste0("DURIAN iteration ",itercount,": error increases, stop"))
       emstatus=0
       logdf$converged[itercount] = "next step terminated with NA loss"
     }else if(!emDiag && abs(scrabble_loss - as.numeric(logdf$scrabbleLoss[itercount])) <= durianEps){
-      print("cond 3")
-      # E-step succeeds but durian error <= eps
+      print(paste0("DURIAN iteration ",itercount,": error <= eps, stop"))
       emstatus=0
       # logdf$converged[itercount-1] = "change(loss) < eps*loss(t-1)"
       # do not write sc data (EM succeeds, use output of nth-1 iteration)
@@ -497,8 +526,7 @@ run_durian <- function(path=NULL,
           write.csv(scdata,file.path(iterPath,"imputed_C.csv"))
       }
     }else if(itercount >= nEM){
-      print("cond 4")
-      # E-step succeeds, M-step succeeds, but iteration limit reached, stop
+      print(paste0("DURIAN iteration ",itercount,": iteration limit, stop"))
       emstatus=0
       iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"reached iteration limit",totaltime)
       names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
@@ -530,8 +558,7 @@ run_durian <- function(path=NULL,
           write.csv(scdata,file.path(iterPath,"imputed_C.csv"))
       }
     }else{
-      print("cond 5")
-      # E-step succeeds, M-step succeeds, continue
+      print(paste0("DURIAN iteration ",itercount,": continue"))
       iteroutput <- c(as.integer(itercount),meanrhat,scrabble_loss,as.integer(0),"running",totaltime)
       names(iteroutput) = c("iter","ldaMeanRhat","scrabbleLoss","converged","status","wallclock")
       if(!is.null(imputebenchmark)){
@@ -562,7 +589,6 @@ run_durian <- function(path=NULL,
           write.csv(scdata,file.path(iterPath,"imputed_C.csv"))
       }
     }
-    # on each iteration, update the EM iteration output log 
   }
   #############################################################################
   # write imputed sc matrix

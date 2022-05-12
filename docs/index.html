@@ -49,7 +49,8 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="articles/basic_usage.html">Basic Usage</a>
-    <a class="dropdown-item" href="articles/signaling.html">Signaling Network Recovery from Imputed Seurat Output</a>
+    <a class="dropdown-item" href="articles/module_selection.html">Module Selection</a>
+    <a class="dropdown-item" href="articles/signaling.html">Imputation/Signaling from Seurat Output</a>
   </div>
 </li>
       </ul>
@@ -84,6 +85,7 @@
 <ul>
 <li>Installation: see below</li>
 <li>Basic usage of DURIAN running and visualizing imputation of Human single-cell data in <code><a href="articles/basic_usage.html">vignette("basic_usage")</a></code>.</li>
+<li>Selection of the DURIAN deconvolution module, including R/C++ and Julia-based modules <code><a href="articles/module_selection.html">vignette("module_selection")</a></code>.</li>
 <li>Use DURIAN on Seurat objects directly, and perform cell signaling analysis in CellChat in <code><a href="articles/signaling.html">vignette("signaling")</a></code>.</li>
 </ul>
 </div>
@@ -93,12 +95,15 @@
 <div class="section level4">
 <h4 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
 </h4>
-<div class="sourceCode" id="cb1"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"R_HOME"</span>]<span class="op">=</span><span class="st">"/usr/local/lib/R"</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"RCall"</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">build</span>(<span class="st">"RCall"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">RCall</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(url<span class="op">=</span><span class="st">"https://github.com/mkarikom/DistributedStwdLDA.jl.git"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"JULIA_PROJECT"</span>]<span class="op">=</span><span class="fu">pwd</span>()</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cn">ENV</span>[<span class="st">"R_HOME"</span>]<span class="op">=</span><span class="st">"/usr/local/lib/R"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Pkg</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"Distributed"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"RCall"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">build</span>(<span class="st">"RCall"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">RCall</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">add</span>(url<span class="op">=</span><span class="st">"https://github.com/mkarikom/DistributedStwdLDA.jl.git"</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Install the latest version and dependencies from github</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span>
@@ -106,7 +111,8 @@
 <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"mkarikom/mtSCRABBLE"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"foreach"</span><span class="op">)</span>
 
-<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>JULIA_HOME<span class="op">=</span><span class="st">"/usr/local/julia-1.7.2/bin"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>JULIA_HOME<span class="op">=</span><span class="st">"/usr/local/julia-1.6.6/bin"</span><span class="op">)</span>
+
 <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"JuliaCall"</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Non-Contradiction/JuliaCall" class="external-link">JuliaCall</a></span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/JuliaCall/man/julia_setup.html" class="external-link">julia_setup</a></span><span class="op">(</span>JULIA_HOME <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"JULIA_HOME"</span><span class="op">)</span>,verbose<span class="op">=</span><span class="cn">TRUE</span>,rebuild <span class="op">=</span> <span class="cn">TRUE</span>,install<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
@@ -116,20 +122,6 @@
 </h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"mkarikom/DURIAN"</span><span class="op">)</span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="module-selection">Module Selection<a class="anchor" aria-label="anchor" href="#module-selection"></a>
-</h4>
-<div>
-<p>DURIAN supports the integration of custom deconvolution modules, even modules written in other languages, such as Julia. Module selection is made using the <code>deconv_method</code> argument to <code><a href="reference/run_durian.html">DURIAN::run_durian</a></code> and the default is <code>deconv_method = "MuSiC"</code>.</p>
-<p>Current deconvolution alternatives include:</p>
-<ul>
-<li>fast, NNLS regression using <a href="https://github.com/xuranw/MuSiC" class="external-link">MuSiC (R)</a>
-</li>
-<li>distributed Monte Carlo inference using <a href="https://github.com/mkarikom/DistributedStwdLDA.jl" class="external-link">dsLDA (Julia)</a>
-</li>
-</ul>
-</div>
 </div>
 </div>
 </div>
